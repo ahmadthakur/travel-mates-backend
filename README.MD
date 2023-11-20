@@ -20,7 +20,6 @@ The main goals of the Travel Mates project are:
 
 - Node.js
 - Express.js
-- Sequelize (ORM for MySQL)
 - MySQL
 
 More information will be added as the project is developed

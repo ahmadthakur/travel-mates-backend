@@ -1,40 +1,45 @@
 const express = require("express");
-const { Sequelize } = require("sequelize");
+const mysql = require("mysql2");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Middlewares
 
 // Database connection
-const sequelize = new Sequelize({
-  dialect: "mysql",
-  username: "admin",
+const connection = mysql.createConnection({
+  host: "localhost",
+  user: "admin",
   password: "admin",
   database: "travel_mates_dev",
-  host: "localhost",
 });
 
 // Test the database connection
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("Connected to the database.");
-  })
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
-  });
-
-// Models
-const User = require("./models/User")(sequelize);
-const Trip = require("./models/Trip")(sequelize);
-const Destination = require("./models/Destination")(sequelize);
-const Accommodation = require("./models/Accommodation")(sequelize);
-const Review = require("./models/Review")(sequelize);
+connection.connect((error) => {
+  if (error) {
+    console.error("Error connecting to the database: ", error);
+    return;
+  }
+  console.log("Database connected");
+});
 
 // Routes
 const userRoutes = require("./routes/userRoutes");
+// const tripRoutes = require("./routes/tripRoutes");
+// const destinationRoutes = require("./routes/destinationRoutes");
+// const accommodationRoutes = require("./routes/accommodationRoutes");
+// const reviewRoutes = require("./routes/reviewRoutes");
+
 app.use("/api/users", userRoutes);
+
+// app.use("/api/trips", tripRoutes);
+// app.use("/api/destinations", destinationRoutes);
+// app.use("/api/accommodations", accommodationRoutes);
+// app.use("/api/reviews", reviewRoutes);
 
 // Server
 app.listen(PORT, () => {
