@@ -1,5 +1,9 @@
 const express = require("express");
 const mysql = require("mysql2");
+const passport = require("./config/passport");
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
+const db = require("./config/db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,8 +12,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middlewares
-
 // Database connection
 const connection = mysql.createConnection({
   host: "localhost",
@@ -17,6 +19,40 @@ const connection = mysql.createConnection({
   password: "admin",
   database: "travel_mates_dev",
 });
+
+const sessionStore = new MySQLStore(
+  {
+    expiration: 86400000, // Session expiration time (in milliseconds), e.g., 24 hours
+    createDatabaseTable: true, // Automatically create sessions table in the database
+    schema: {
+      tableName: "sessions",
+      columnNames: {
+        session_id: "session_id",
+        expires: "expires",
+        data: "data",
+      },
+    },
+  },
+  db // Pass the MySQL connection pool
+);
+
+// Session
+app.use(
+  session({
+    secret: "123", // Use a strong, unique secret for session encryption
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: { secure: false }, // Set cookie options here
+    // Add additional session configuration options if needed
+  })
+);
+
+// Session
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Middlewares
 
 // Test the database connection
 connection.connect((error) => {
