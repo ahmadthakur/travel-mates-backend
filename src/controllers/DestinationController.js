@@ -1,80 +1,107 @@
-// const { Destination } = require("../models/Destination");
+const { v4: uuidv4 } = require("uuid");
+const sqlite3 = require("sqlite3").verbose();
 
-// exports.createDestination = async (req, res) => {
-//   try {
-//     const newDestination = await Destination.create(req.body);
-//     return res.status(201).json(newDestination);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+// Create a database connection
+const db = new sqlite3.Database("./travel_mates.db", (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log("Connected to the travel_mates database.");
+});
 
-// exports.getAllDestinations = async (req, res) => {
-//   try {
-//     const destinations = await Destination.findAll();
-//     return res.status(200).json(destinations);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+// CRUD operations for destinations
 
-// exports.getDestinationById = async (req, res) => {
-//   const { id } = req.params;
+// Retrieve all destinations
+exports.getAllDestinations = (req, res) => {
+  try {
+    const selectDestinationsQuery = "SELECT * FROM destinations";
 
-//   try {
-//     const destination = await Destination.findByPk(id);
+    db.all(selectDestinationsQuery, [], (err, destinations) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      return res.json(destinations);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-//     if (!destination) {
-//       return res.status(404).json({ error: "Destination not found" });
-//     }
+// Retrieve destination by ID
+exports.getDestinationById = (req, res) => {
+  const { id } = req.params;
 
-//     return res.status(200).json(destination);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+  try {
+    const selectDestinationQuery = "SELECT * FROM destinations WHERE id = ?";
 
-// exports.updateDestination = async (req, res) => {
-//   const { id } = req.params;
+    db.get(selectDestinationQuery, [id], (err, destination) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
 
-//   try {
-//     const [updatedRowsCount, updatedDestination] = await Destination.update(
-//       req.body,
-//       {
-//         where: { id },
-//         returning: true,
-//       }
-//     );
+      if (!destination) {
+        return res.status(404).json({ error: "Destination not found" });
+      }
 
-//     if (updatedRowsCount === 0) {
-//       return res.status(404).json({ error: "Destination not found" });
-//     }
+      return res.json(destination);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-//     return res.status(200).json(updatedDestination[0]);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+// Create a new destination
+exports.createDestination = (req, res) => {
+  try {
+    const {
+      name,
+      city,
+      country,
+      description,
+      attractions,
+      recommended_activities,
+      image_url,
+    } = req.body;
 
-// exports.deleteDestination = async (req, res) => {
-//   const { id } = req.params;
+    const id = uuidv4();
 
-//   try {
-//     const deletedRowCount = await Destination.destroy({
-//       where: { id },
-//     });
+    const insertDestinationQuery = `
+      INSERT INTO destinations (id, name, city, country, description, attractions, recommended_activities, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-//     if (deletedRowCount === 0) {
-//       return res.status(404).json({ error: "Destination not found" });
-//     }
+    const values = [
+      id,
+      name,
+      city,
+      country,
+      description,
+      attractions,
+      recommended_activities,
+      image_url,
+    ];
 
-//     return res.status(204).send();
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
+    db.run(insertDestinationQuery, values, function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      return res.status(201).json({
+        id,
+        name,
+        city,
+        country,
+        description,
+        attractions,
+        recommended_activities,
+        image_url,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

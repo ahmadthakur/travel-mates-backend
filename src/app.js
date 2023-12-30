@@ -1,79 +1,47 @@
 const express = require("express");
-const mysql = require("mysql2");
-const passport = require("./config/passport");
 const session = require("express-session");
-const MySQLStore = require("express-mysql-session")(session);
-const db = require("./config/db");
+const FileStore = require("session-file-store")(session);
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
+
+// Enable CORS
+app.use(
+  cors({
+    origin: "http://localhost:3000", // replace with your frontend app's URL
+    credentials: true,
+  })
+);
 
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "admin",
-  password: "admin",
-  database: "travel_mates_dev",
-});
+const fileStoreOptions = {};
 
-const sessionStore = new MySQLStore(
-  {
-    expiration: 86400000, // Session expiration time (in milliseconds), e.g., 24 hours
-    createDatabaseTable: true, // Automatically create sessions table in the database
-    schema: {
-      tableName: "sessions",
-      columnNames: {
-        session_id: "session_id",
-        expires: "expires",
-        data: "data",
-      },
-    },
-  },
-  db // Pass the MySQL connection pool
-);
-
-// Session
 app.use(
   session({
-    secret: "123", // Use a strong, unique secret for session encryption
+    store: new FileStore(fileStoreOptions),
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: { secure: false }, // Set cookie options here
-    // Add additional session configuration options if needed
+    saveUninitialized: true,
+    cookie: { secure: false }, // Note that the `secure` option should be true if you serve your website over HTTPS
   })
 );
-
-// Session
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Middlewares
-
-// Test the database connection
-connection.connect((error) => {
-  if (error) {
-    console.error("Error connecting to the database: ", error);
-    return;
-  }
-  console.log("Database connected");
-});
 
 // Routes
 const userRoutes = require("./routes/userRoutes");
 // const tripRoutes = require("./routes/tripRoutes");
-// const destinationRoutes = require("./routes/destinationRoutes");
+const destinationRoutes = require("./routes/destinationRoutes");
 // const accommodationRoutes = require("./routes/accommodationRoutes");
 // const reviewRoutes = require("./routes/reviewRoutes");
 
-app.use("/api/users", userRoutes);
-
+app.use("/users", userRoutes);
+app.use("/api/destinations", destinationRoutes);
 // app.use("/api/trips", tripRoutes);
-// app.use("/api/destinations", destinationRoutes);
+
 // app.use("/api/accommodations", accommodationRoutes);
 // app.use("/api/reviews", reviewRoutes);
 

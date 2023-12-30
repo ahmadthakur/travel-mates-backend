@@ -21,6 +21,7 @@ logs/
 .pnp/
 .pnp.js
 
+
 # Testing
 coverage/
 .nyc_output/
@@ -36,3 +37,9 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# Other testing related files
+demo_destinations.json
+demo_users.json
+sessions
+
