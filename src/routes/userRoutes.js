@@ -14,7 +14,7 @@ router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 
 // User logout
-router.get("/logout", UserController.logout);
+router.post("/logout", UserController.logout);
 
 // Protected route (requires authentication)
 router.get("/dashboard", UserController.dashboard);
