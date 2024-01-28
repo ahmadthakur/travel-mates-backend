@@ -1,25 +1,32 @@
+// Import required modules
 const express = require("express");
 const router = express.Router();
 const UserController = require("../controllers/UserController");
+const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
 
-// // Get all users
-router.get("/", UserController.getAllUsers);
+// Define route to get all users
+router.get("/users", UserController.getAllUsers);
 
-//------------------AUTHENTICATION------------------//
+// Define authentication related routes
 
-// User registration
-router.post("/register", UserController.register);
+// Route for user registration
+router.post("/users/register", UserController.register);
 
-// User login
-router.post("/login", UserController.login);
+// Route for user login
+router.post("/users/login", UserController.login);
 
-// User logout
-router.post("/logout", UserController.logout);
+// Route for user logout
+router.post("/users/logout", isAuthenticated, UserController.logout);
 
-// Protected route (requires authentication)
-router.get("/dashboard", UserController.dashboard);
+// Define protected route that requires authentication
+router.get("/users/dashboard", isAuthenticated, UserController.dashboard);
 
-// Check session
-router.get("/check-session", UserController.checkSession);
+// Define route to check session
+router.get(
+  "/users/check-session",
+  isAuthenticated,
+  UserController.checkSession
+);
 
+// Export the router
 module.exports = router;

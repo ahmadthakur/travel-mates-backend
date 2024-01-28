@@ -1,113 +1,71 @@
+// Import required modules
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
-const sqlite3 = require("sqlite3").verbose();
 
-// Create a database connection
-const db = new sqlite3.Database("./travel_mates.db", (err) => {
-  if (err) {
-    console.error(err.message);
-  }
-  console.log("Connected to the travel_mates database.");
-});
-
-// CRUD operations for users
-
-// Create a new user
-exports.createUser = (req, res) => {
-  try {
-    const { username, first_name, last_name, email, password } = req.body;
-
-    const id = uuidv4();
-
-    const insertUserQuery = `
-      INSERT INTO users (id, username, first_name, last_name, email, password)
-      VALUES (?, ?, ?, ?, ?, ?)`;
-
-    const values = [id, username, first_name, last_name, email, password];
-
-    db.run(insertUserQuery, values, function (err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-      return res
-        .status(201)
-        .json({ id, username, first_name, last_name, email });
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+// Import the database connection from the db.js file in the database directory
+const db = require("../../database/db");
 
 // Retrieve all users
 exports.getAllUsers = (req, res) => {
-  try {
-    const selectUsersQuery = "SELECT * FROM users";
-
-    db.all(selectUsersQuery, [], (err, users) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-      return res.json(users);
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  const selectUsersQuery = "SELECT * FROM users";
+  db.all(selectUsersQuery, [], (err, users) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    console.log(users);
+    return res.json(users);
+  });
 };
 
 //------------------AUTHENTICATION------------------//
 
 // User registration
 exports.register = (req, res) => {
-  // Check if user already exists
   const { username, first_name, last_name, email, password } = req.body;
 
-  const selectUserQuery = "SELECT * FROM users WHERE username = ?";
+  if (!username || !first_name || !last_name || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
-  db.get(selectUserQuery, [username], async (err, user) => {
+  bcrypt.hash(password, 10, (err, hashedPassword) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
 
-    if (user) {
-      return res.status(409).json({ error: "User already exists" });
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user
     const id = uuidv4();
-
     const insertUserQuery = `
-    INSERT INTO users (id, username, first_name, last_name, email, password)
-    VALUES (?, ?, ?, ?, ?, ?)`;
+      INSERT INTO users (id, username, first_name, last_name, email, password)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
 
-    const values = [id, username, first_name, last_name, email, hashedPassword];
+    db.run(
+      insertUserQuery,
+      [id, username, first_name, last_name, email, hashedPassword],
+      (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Internal Server Error" });
+        }
 
-    db.run(insertUserQuery, values, function (err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(201).json({ message: "User created successfully" });
       }
-      return res
-        .status(201)
-        .json({ id, username, first_name, last_name, email });
-    });
+    );
   });
 };
 
-// User Login
-exports.login = async (req, res) => {
+// User login
+exports.login = (req, res) => {
   const { username, password } = req.body;
 
-  // Query to find user
-  const selectUserQuery = "SELECT * FROM users WHERE username = ?";
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
 
+  const selectUserQuery = "SELECT * FROM users WHERE username = ?";
   db.get(selectUserQuery, [username], async (err, user) => {
     if (err) {
       console.error(err);
@@ -118,7 +76,6 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Authentication failed" });
     }
 
-    // Check password
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
@@ -157,12 +114,7 @@ exports.logout = (req, res) => {
 
 // Protected route (requires authentication)
 exports.dashboard = (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
-
   const selectTripsQuery = "SELECT * FROM trips WHERE id = ?";
-
   db.all(selectTripsQuery, [req.session.user.id], (err, trips) => {
     if (err) {
       console.error(err);
@@ -183,13 +135,9 @@ exports.dashboard = (req, res) => {
 
 // Check session
 exports.checkSession = (req, res) => {
-  if (!req.session.user) {
-    return res
-      .status(401)
-      .json({ message: "Authentication failed", isLoggedIn: false });
-  }
-
-  return res
-    .status(200)
-    .json({ message: "You are authorized", isLoggedIn: true });
+  return res.status(200).json({
+    message: "You are authorized",
+    isLoggedIn: true,
+    user: req.session.user,
+  });
 };

@@ -1,20 +1,35 @@
+// Import required modules
 const express = require("express");
 const DestinationController = require("../controllers/DestinationController");
 const router = express.Router();
+const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
 
-// Get all destinations
-router.get("/", DestinationController.getAllDestinations);
+// Define route to get all destinations
+router.get(
+  "/destinations",
 
-// Create a new destination
-router.post("/create", DestinationController.createDestination);
+  DestinationController.getAllDestinations
+);
 
-// Get destination by ID
-router.get("/:id", DestinationController.getDestinationById);
+// Define route to create a new destination
+router.post("/destinations", isAdmin, DestinationController.createDestination);
 
-// // Update destination by ID
-// router.put("/:id", DestinationController.updateDestination);
+// Define route to get a destination by ID
+router.get("/destinations/:id", DestinationController.getDestinationById);
 
-// // Delete destination by ID
-// router.delete("/:id", DestinationController.deleteDestination);
+// Define route to update a destination by ID
+router.put(
+  "/destinations/:id",
+  isAdmin,
+  DestinationController.updateDestination
+);
 
+// Define route to delete a destination by ID
+router.delete(
+  "/destinations/:id",
+  isAdmin,
+  DestinationController.deleteDestination
+);
+
+// Export the router
 module.exports = router;
