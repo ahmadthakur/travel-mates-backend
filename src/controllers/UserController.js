@@ -133,6 +133,20 @@ exports.dashboard = (req, res) => {
   });
 };
 
+// Delete a user
+exports.deleteUser = (req, res) => {
+  const { userId } = req.params;
+
+  const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+  db.run(deleteUserQuery, [userId], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    return res.json({ message: "User deleted successfully" });
+  });
+};
+
 // Check session
 exports.checkSession = (req, res) => {
   return res.status(200).json({

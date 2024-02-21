@@ -9,7 +9,7 @@ const sqlite3 = require("sqlite3").verbose();
 
 const path = require("path");
 
-const dbPath = path.resolve(__dirname, "../travel_mates.db");
+const dbPath = path.resolve(__dirname, "./travel_mates.db");
 
 const db = new sqlite3.Database(dbPath, (err) => {
   // If there is an error when connecting to the database, log the error message
@@ -18,31 +18,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
   // If the connection is successful, log a success message
   console.log("Connected to the travel_mates database.");
-});
-
-db.serialize(() => {
-  db.all(
-    "SELECT name FROM sqlite_master WHERE type='table'",
-    [],
-    (err, tables) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log("Tables:", tables);
-      }
-    }
-  );
-});
-
-//show data from users table
-db.serialize(() => {
-  db.all("SELECT * FROM users", [], (err, users) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log("Users:", users);
-    }
-  });
 });
 
 // Export the database connection object to be used in other modules

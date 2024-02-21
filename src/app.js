@@ -31,7 +31,10 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Note that the `secure` option should be true if you serve your website over HTTPS
+    cookie: {
+      secure: false, // Note that the `secure` option should be true if you serve your website over HTTPS
+      maxAge: 365 * 24 * 60 * 60 * 1000, // One year in milliseconds
+    },
   })
 );
 
@@ -42,6 +45,7 @@ const destinationRoutes = require("./routes/destinationRoutes");
 const accommodationRoutes = require("./routes/accommodationRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 // Use imported routes
 app.use("/users", userRoutes);
@@ -50,6 +54,7 @@ app.use("/api/trips", tripRoutes);
 app.use("/api/accommodations", accommodationRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/admin", adminRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Start the server
 app.listen(PORT, () => {

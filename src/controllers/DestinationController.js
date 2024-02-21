@@ -20,6 +20,7 @@ exports.createDestination = (req, res) => {
   const {
     name,
     country,
+    city,
     description,
     attractions,
     recommended_activities,
@@ -30,8 +31,8 @@ exports.createDestination = (req, res) => {
 
   const id = uuidv4();
   const insertDestinationQuery = `
-    INSERT INTO destinations (id, name, country, description, attractions, recommended_activities, image_url, latitude, longitude)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO destinations (id, name, city, country, description, attractions, recommended_activities, image_url, latitude, longitude)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.run(
@@ -40,6 +41,7 @@ exports.createDestination = (req, res) => {
       id,
       name,
       country,
+      city,
       description,
       attractions,
       recommended_activities,
@@ -81,10 +83,11 @@ exports.getDestinationById = (req, res) => {
 
 // Function to update a destination
 exports.updateDestination = (req, res) => {
-  const { id } = req.params;
+  const { id } = req.body.id;
   const {
     name,
     country,
+    city,
     description,
     attractions,
     recommended_activities,
@@ -95,7 +98,7 @@ exports.updateDestination = (req, res) => {
 
   const updateDestinationQuery = `
     UPDATE destinations
-    SET name = ?, country = ?, description = ?, attractions = ?, recommended_activities = ?, image_url = ?, latitude = ?, longitude = ?
+    SET name = ?, country = ?, city = ?, description = ?, attractions = ?, recommended_activities = ?, image_url = ?, latitude = ?, longitude = ?
     WHERE id = ?
   `;
 
@@ -104,6 +107,7 @@ exports.updateDestination = (req, res) => {
     [
       name,
       country,
+      city,
       description,
       attractions,
       recommended_activities,

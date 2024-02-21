@@ -14,7 +14,7 @@ router.post("/admin/logout", isAdmin, AdminController.logout);
 router.get("/admin/dashboard", isAdmin, AdminController.dashboard);
 
 // Define route to check session
-router.get("/admin/check-session", AdminController.checkSession);
+router.get("/admin/check-session", isAdmin, AdminController.checkSession);
 
 // Export the router
 module.exports = router;

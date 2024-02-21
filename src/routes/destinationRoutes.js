@@ -5,11 +5,7 @@ const router = express.Router();
 const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
 
 // Define route to get all destinations
-router.get(
-  "/destinations",
-
-  DestinationController.getAllDestinations
-);
+router.get("/destinations", DestinationController.getAllDestinations);
 
 // Define route to create a new destination
 router.post("/destinations", isAdmin, DestinationController.createDestination);
@@ -18,11 +14,7 @@ router.post("/destinations", isAdmin, DestinationController.createDestination);
 router.get("/destinations/:id", DestinationController.getDestinationById);
 
 // Define route to update a destination by ID
-router.put(
-  "/destinations/:id",
-  isAdmin,
-  DestinationController.updateDestination
-);
+router.put("/destinations", isAdmin, DestinationController.updateDestination);
 
 // Define route to delete a destination by ID
 router.delete(

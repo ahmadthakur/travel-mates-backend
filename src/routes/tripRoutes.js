@@ -5,10 +5,13 @@ const router = express.Router();
 const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
 
 // Define route to get all of a users trips
-router.get("/trips", isAuthenticated, isAdmin, TripController.getAllUserTrips);
+router.get("/trips", isAuthenticated, TripController.getAllUserTrips);
+
+// Define a route to get all trips of a user by user ID
+router.get("/trips/:userId", isAdmin, TripController.getUserTripsByID);
 
 // Define route to create a new trip
-router.post("/trips", isAuthenticated, isAdmin, TripController.createTrip);
+router.post("/trips", isAuthenticated, TripController.createTrip);
 
 // Define route to get a trip by ID
 router.get("/trips/:id", isAuthenticated, isAdmin, TripController.getUserTrip);

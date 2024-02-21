@@ -11,15 +11,15 @@ exports.isAuthenticated = (req, res, next) => {
 
 // Middleware to check if the user is an admin
 exports.isAdmin = (req, res, next) => {
-  if (req.session.user.role === "admin") {
-    console.log(`User ${req.session.user.id} is an admin`);
+  if (req.session.admin) {
+    console.log(`User ${req.session.admin.id} is an admin`);
     next();
   } else {
     console.error(
-      `Authorization failed: User ${req.session.user.id} is not an admin`
+      `Authorization failed: User ${req.session.admin.id} is not an admin`
     );
     res.status(403).json({
-      error: `Forbidden: User ${req.session.user.id} is not an admin`,
+      error: `Forbidden: User ${req.session.admin.id} is not an admin`,
     });
   }
 };

@@ -8,11 +8,6 @@ const db = require("../../database/db");
 
 // Create a new notification
 exports.createNotification = (req, res) => {
-  // check if user is admin
-  if (!req.session.admin) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
-
   const { userId, message } = req.body;
 
   const insertNotificationQuery =
@@ -31,11 +26,6 @@ exports.createNotification = (req, res) => {
 
 // Fetch all notifications for a user
 exports.getUserNotifications = (req, res) => {
-  // check if user is admin
-  if (!req.session.admin) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
-
   const { userId } = req.params;
 
   const selectNotificationsQuery =
@@ -47,5 +37,21 @@ exports.getUserNotifications = (req, res) => {
       return res.status(500).json({ error: "Internal Server Error" });
     }
     return res.json(notifications);
+  });
+};
+
+// Delete a notification for a user
+exports.deleteNotification = (req, res) => {
+  const { userId, notificationId } = req.body;
+
+  const deleteNotificationQuery =
+    "DELETE FROM notifications WHERE userId = ? AND id = ?";
+
+  db.run(deleteNotificationQuery, [userId, notificationId], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    return res.json({ message: "Notification deleted successfully" });
   });
 };

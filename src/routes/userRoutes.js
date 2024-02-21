@@ -21,6 +21,9 @@ router.post("/users/logout", isAuthenticated, UserController.logout);
 // Define protected route that requires authentication
 router.get("/users/dashboard", isAuthenticated, UserController.dashboard);
 
+// Delete a user
+router.delete("/users/:userId", isAdmin, UserController.deleteUser);
+
 // Define route to check session
 router.get(
   "/users/check-session",

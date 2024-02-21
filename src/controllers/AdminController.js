@@ -4,25 +4,32 @@ const db = require("../../database/db");
 //------------------AUTHENTICATION------------------//
 
 // Admin login
-exports.login = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const selectAdminQuery = "SELECT * FROM admin WHERE username = ?";
-    const admin = await db.get(selectAdminQuery, [username]);
+exports.login = (req, res) => {
+  const { username, password } = req.body;
+  console.log(req.body);
+  const selectAdminQuery = "SELECT * FROM admin WHERE username = ?";
+
+  db.get(selectAdminQuery, [username], (err, admin) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    console.log(admin);
 
     if (!admin || admin.password !== password) {
       return res.status(401).json({ error: "Invalid Credentials" });
     }
 
     // Create session
-    req.session.admin = admin;
+    req.session.admin = {
+      id: admin.id,
+      username: admin.username,
+    };
 
     // Return the admin data in the response
     return res.json(admin);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  });
 };
 
 // Admin logout
@@ -39,13 +46,16 @@ exports.logout = (req, res) => {
 };
 
 // Protected route for the admin dashboard (requires authentication)
-exports.dashboard = async (req, res) => {
-  try {
-    // SQL query to select the admin with the provided ID
-    const selectAdminQuery = "SELECT * FROM admin WHERE id = ?";
+exports.dashboard = (req, res) => {
+  // SQL query to select the admin with the provided ID
+  const selectAdminQuery = "SELECT * FROM admin WHERE id = ?";
 
-    // Execute the SQL query
-    const admin = await db.get(selectAdminQuery, [req.session.admin.id]);
+  // Execute the SQL query
+  db.get(selectAdminQuery, [req.session.admin.id], (err, admin) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
 
     // If there's no admin with the provided ID, return a 404 response
     if (!admin) {
@@ -63,19 +73,10 @@ exports.dashboard = async (req, res) => {
     return res
       .status(200)
       .json({ message: "You are authorized", admin: adminData });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  });
 };
-
 // Check session
 exports.checkSession = (req, res) => {
-  const admin = {
-    id: req.session.admin.id,
-    username: req.session.admin.username,
-    // Add other admin fields as needed
-  };
   // If the admin is in the session (checked by middleware), return a 200 response
   return res.status(200).json({
     message: "You are authorized",
