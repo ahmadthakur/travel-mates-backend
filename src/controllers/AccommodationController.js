@@ -3,34 +3,37 @@ const { v4: uuidv4 } = require("uuid");
 const db = require("../../database/db");
 
 // Function to get all accommodations
-exports.getAllAccommodations = async (req, res) => {
-  try {
-    const selectAccommodationsQuery = "SELECT * FROM accommodations";
-    const accommodations = await db.all(selectAccommodationsQuery);
+exports.getAllAccommodations = (req, res) => {
+  const selectAccommodationsQuery = "SELECT * FROM accommodations";
+
+  db.all(selectAccommodationsQuery, (error, accommodations) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    console.log(accommodations);
     return res.json(accommodations);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  });
 };
 
 // Function to retrieve accommodation by ID
-exports.getAccommodationById = async (req, res) => {
+exports.getAccommodationById = (req, res) => {
   const { id } = req.params;
-  try {
-    const selectAccommodationQuery =
-      "SELECT * FROM accommodations WHERE id = ?";
-    const accommodation = await db.get(selectAccommodationQuery, [id]);
+  const selectAccommodationQuery = "SELECT * FROM accommodations WHERE id = ?";
+
+  db.get(selectAccommodationQuery, [id], (error, accommodation) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
 
     if (!accommodation) {
       return res.status(404).json({ error: "Accommodation not found" });
     }
 
     return res.json(accommodation);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  });
 };
 
 // Function to create a new accommodation
@@ -46,7 +49,7 @@ exports.createAccommodation = (req, res) => {
 
   try {
     const insertAccommodationQuery =
-      "INSERT INTO accommodations (id, name, description, price, max_guests, city, country, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO accommodations (id, name, description, price, maxGuests, city, country, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     db.run(
       insertAccommodationQuery,
@@ -68,45 +71,44 @@ exports.createAccommodation = (req, res) => {
 };
 
 // Function to update a new accommodation by ID
-exports.updateAccommodation = async (req, res) => {
+exports.updateAccommodation = (req, res) => {
   const { id } = req.params;
   const { name, description, price, maxGuests, city, country, imageUrl } =
     req.body;
 
-  try {
-    const updateAccommodationQuery =
-      "UPDATE accommodations SET name = ?, description = ?, price = ?, max_guests = ?, city = ?, country = ?, image_url = ? WHERE id = ?";
-    await db.run(updateAccommodationQuery, [
-      name,
-      description,
-      price,
-      maxGuests,
-      city,
-      country,
-      imageUrl,
-      id,
-    ]);
-    return res
-      .status(200)
-      .json({ message: "Accommodation updated successfully" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  const updateAccommodationQuery =
+    "UPDATE accommodations SET name = ?, description = ?, price = ?, maxGuests = ?, city = ?, country = ?, imageUrl = ? WHERE id = ?";
+
+  db.run(
+    updateAccommodationQuery,
+    [name, description, price, maxGuests, city, country, imageUrl, id],
+    (error) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Accommodation updated successfully" });
+    }
+  );
 };
 
 // Function to delete an accommodation by ID
-exports.deleteAccommodation = async (req, res) => {
+exports.deleteAccommodation = (req, res) => {
   const { id } = req.params;
 
-  try {
-    const deleteAccommodationQuery = "DELETE FROM accommodations WHERE id = ?";
-    await db.run(deleteAccommodationQuery, [id]);
+  const deleteAccommodationQuery = "DELETE FROM accommodations WHERE id = ?";
+
+  db.run(deleteAccommodationQuery, [id], (error) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
     return res
       .status(200)
       .json({ message: "Accommodation deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  });
 };

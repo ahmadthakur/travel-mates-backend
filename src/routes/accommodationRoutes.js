@@ -12,16 +12,11 @@ router.post(
 );
 
 // Define route to get all accommodations
-router.get(
-  "/accommodations",
-  isAuthenticated,
-  isAdmin,
-  AccommodationController.getAllAccommodations
-);
+router.get("/accommodations", AccommodationController.getAllAccommodations);
 
 // Define route to get a specific accommodation by ID
 router.get(
-  "/accommodations/:accommodationId",
+  "/accommodations/:id",
   isAuthenticated,
   isAdmin,
   AccommodationController.getAccommodationById
@@ -29,14 +24,14 @@ router.get(
 
 // Define route to update an accommodation by ID
 router.put(
-  "/accommodations/:accommodationId",
+  "/accommodations/:id",
   isAdmin,
   AccommodationController.updateAccommodation
 );
 
 // Define route to delete an accommodation by ID
 router.delete(
-  "/accommodations/:accommodationId",
+  "/accommodations/:id",
   isAdmin,
   AccommodationController.deleteAccommodation
 );

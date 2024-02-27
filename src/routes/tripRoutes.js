@@ -22,8 +22,7 @@ router.put("/trips/:id", isAuthenticated, isAdmin, TripController.updateTrip);
 // Define route to delete a trip by ID
 router.delete(
   "/trips/:id",
-  isAuthenticated,
-  isAdmin,
+  isAuthenticated || isAdmin,
   TripController.deleteTrip
 );
 

@@ -83,7 +83,7 @@ exports.getDestinationById = (req, res) => {
 
 // Function to update a destination
 exports.updateDestination = (req, res) => {
-  const { id } = req.body.id;
+  const { id } = req.body;
   const {
     name,
     country,
@@ -98,7 +98,16 @@ exports.updateDestination = (req, res) => {
 
   const updateDestinationQuery = `
     UPDATE destinations
-    SET name = ?, country = ?, city = ?, description = ?, attractions = ?, recommended_activities = ?, image_url = ?, latitude = ?, longitude = ?
+    SET 
+      name = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE name END,
+      country = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE country END,
+      city = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE city END,
+      description = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE description END,
+      attractions = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE attractions END,
+      recommended_activities = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE recommended_activities END,
+      image_url = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE image_url END,
+      latitude = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE latitude END,
+      longitude = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE longitude END
     WHERE id = ?
   `;
 
@@ -106,13 +115,31 @@ exports.updateDestination = (req, res) => {
     updateDestinationQuery,
     [
       name,
+      name,
+      name,
+      country,
+      country,
       country,
       city,
+      city,
+      city,
+      description,
+      description,
       description,
       attractions,
+      attractions,
+      attractions,
+      recommended_activities,
+      recommended_activities,
       recommended_activities,
       image_url,
+      image_url,
+      image_url,
       latitude,
+      latitude,
+      latitude,
+      longitude,
+      longitude,
       longitude,
       id,
     ],

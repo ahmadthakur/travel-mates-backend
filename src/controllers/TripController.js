@@ -95,3 +95,16 @@ exports.deleteTrip = (req, res) => {
     return res.status(200).json({ message: "Trip deleted successfully" });
   });
 };
+
+exports.admindeleteTrip = (req, res) => {
+  const { id } = req.params;
+
+  const deleteTripQuery = "DELETE FROM trips WHERE id = ?";
+  db.run(deleteTripQuery, [id], (error) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    return res.status(200).json({ message: "Trip deleted successfully" });
+  });
+};
