@@ -6,22 +6,47 @@ const db = require("../../database/db");
 
 // CRUD operations for notifications
 
-// Create a new notification
-exports.createNotification = (req, res) => {
-  const { userId, message } = req.body;
+// Get all notifications for a user by ID
+exports.getAllNotifications = (req, res) => {
+  const userId = req.session.user.id;
 
-  const insertNotificationQuery =
-    "INSERT INTO notifications (userId, message) VALUES (?, ?)";
+  const selectNotificationsQuery =
+    "SELECT * FROM notifications WHERE userId = ?";
 
-  db.run(insertNotificationQuery, [userId, message], function (err) {
+  db.all(selectNotificationsQuery, [userId], (err, notifications) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
-    return res
-      .status(201)
-      .json({ message: "Notification created successfully" });
+
+    return res.json(notifications);
   });
+};
+
+// Create a new notification
+exports.createNotification = (req, res) => {
+  //get user id from params and message from body
+
+  const { userId, message } = req.body;
+  const id = uuidv4();
+  const isRead = false;
+
+  const insertNotificationQuery =
+    "INSERT INTO notifications (id, userId, message, isRead) VALUES (?, ?, ?, ?)";
+
+  db.run(
+    insertNotificationQuery,
+    [id, userId, message, isRead],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      return res
+        .status(201)
+        .json({ message: "Notification created successfully" });
+    }
+  );
 };
 
 // Fetch all notifications for a user

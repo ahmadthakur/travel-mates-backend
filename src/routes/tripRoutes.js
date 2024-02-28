@@ -19,12 +19,11 @@ router.get("/trips/:id", isAuthenticated, isAdmin, TripController.getUserTrip);
 // Define route to update a trip by ID
 router.put("/trips/:id", isAuthenticated, isAdmin, TripController.updateTrip);
 
-// Define route to delete a trip by ID
-router.delete(
-  "/trips/:id",
-  isAuthenticated || isAdmin,
-  TripController.deleteTrip
-);
+// Define route to delete a trip by ID User
+router.delete("/trips/:id", isAuthenticated, TripController.deleteTrip);
+
+// Define route to delete a trip by ID for an admin
+router.delete("/admin/trips/:id", isAdmin, TripController.adminDeleteTrip);
 
 // Export the router
 module.exports = router;

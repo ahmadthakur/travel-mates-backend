@@ -96,7 +96,7 @@ exports.deleteTrip = (req, res) => {
   });
 };
 
-exports.admindeleteTrip = (req, res) => {
+exports.adminDeleteTrip = (req, res) => {
   const { id } = req.params;
 
   const deleteTripQuery = "DELETE FROM trips WHERE id = ?";

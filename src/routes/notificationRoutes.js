@@ -3,22 +3,28 @@ const NotificationController = require("../controllers/NotificationController");
 const router = express.Router();
 const { isAuthenticated, isAdmin } = require("../middlewares/authMiddleware");
 
-// Get all notifications for the authenticated user
+// Get all notifications for the authenticated user by ID
 router.get(
   "/notifications",
   isAuthenticated,
+  NotificationController.getAllNotifications
+);
+
+// Get notifications for user by ID
+router.get(
+  "/notifications/:userId",
   isAdmin,
   NotificationController.getUserNotifications
 );
 
-// Create a new notification for the authenticated user
+// Create a new notification for the user by ID
 router.post(
-  "/notifications",
+  "/notifications/",
   isAdmin,
   NotificationController.createNotification
 );
 
-// Delete a specific notification for the authenticated user
+// Delete a specific notification for the user by ID
 router.delete(
   "/notifications/:id",
   isAdmin,
