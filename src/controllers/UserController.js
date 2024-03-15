@@ -1,6 +1,6 @@
 // Import required modules
 const { v4: uuidv4 } = require("uuid");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 // Import the database connection from the db.js file in the database directory
 const db = require("../../database/db");
