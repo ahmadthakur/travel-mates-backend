@@ -112,3 +112,25 @@ exports.deleteAccommodation = (req, res) => {
       .json({ message: "Accommodation deleted successfully" });
   });
 };
+
+//Get accommodation by City
+exports.getAccommodationByCity = (req, res) => {
+  const { city } = req.params;
+  const selectAccommodationQuery =
+    "SELECT * FROM accommodations WHERE city = ?";
+
+  db.all(selectAccommodationQuery, [city], (error, accommodations) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (accommodations.length === 0) {
+      console.log("Accommodation not found");
+      return res.status(404).json({ error: "Accommodation not found" });
+    }
+
+    console.log(accommodations);
+    return res.json(accommodations);
+  });
+};

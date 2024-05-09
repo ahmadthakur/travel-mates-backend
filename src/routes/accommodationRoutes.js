@@ -36,5 +36,12 @@ router.delete(
   AccommodationController.deleteAccommodation
 );
 
+// Get accommodation by city
+router.get(
+  "/accommodations/:city",
+  isAuthenticated,
+  AccommodationController.getAccommodationByCity
+);
+
 // Export the router
 module.exports = router;

@@ -30,14 +30,14 @@ exports.getUserTripsByID = (req, res) => {
 
 // Create a new trip
 exports.createTrip = (req, res) => {
-  const { user_id, destination_id, notes, start_date, end_date } = req.body;
+  const { user_id, destination_id, notes, start_date, end_date, trip_name, trip_accommodation } = req.body;
   const id = uuidv4();
 
   const createTripQuery =
-    "INSERT INTO trips (id, user_id, destination_id, notes, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO trips (id, user_id, destination_id, notes, start_date, end_date, trip_name, trip_accommodation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   db.run(
     createTripQuery,
-    [id, user_id, destination_id, notes, start_date, end_date],
+    [id, user_id, destination_id, notes, start_date, end_date, trip_name, trip_accommodation],
     (error) => {
       if (error) {
         console.error(error);
