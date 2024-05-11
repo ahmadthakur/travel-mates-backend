@@ -15,11 +15,9 @@ exports.isAdmin = (req, res, next) => {
     console.log(`User ${req.session.admin.id} is an admin`);
     next();
   } else {
-    console.error(
-      `Authorization failed: User ${req.session.admin.id} is not an admin`
-    );
+    console.error("Authorization failed: User is not an admin");
     res.status(403).json({
-      error: `Forbidden: User ${req.session.admin.id} is not an admin`,
+      error: "Forbidden: User is not an admin",
     });
   }
 };
